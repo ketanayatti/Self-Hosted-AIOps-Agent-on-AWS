@@ -8,7 +8,7 @@
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.100+-009688?style=for-the-badge&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
 [![AWS](https://img.shields.io/badge/AWS-EC2%20Free%20Tier-FF9900?style=for-the-badge&logo=amazon-aws&logoColor=white)](https://aws.amazon.com/free/)
 [![llama.cpp](https://img.shields.io/badge/llama.cpp-CPU%20Inference-8A2BE2?style=for-the-badge)](https://github.com/ggerganov/llama.cpp)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](LICENSE)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](https://opensource.org/license/mit/)
 
 > *Practical AIOps. No cloud AI subscriptions. No GPU. Just pure engineering.*
 
@@ -314,7 +314,7 @@ Contributions, issues and feature requests are welcome!
 
 ## 📜 License
 
-This project is licensed under the **MIT License** — see the [LICENSE](LICENSE) file for details.
+This project is licensed under the **MIT License** — see the [MIT License](https://opensource.org/license/mit/) for details.
 
 ---
 
