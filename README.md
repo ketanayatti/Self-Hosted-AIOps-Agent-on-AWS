@@ -1,127 +1,105 @@
 <div align="center">
 
-<img
-  src="docs/images/banner.png"
-  alt="Self-Hosted AIOps Agent on AWS"
-  width="900"
-  loading="lazy"
-/>
+# 🤖 Self-Hosted AIOps Agent on AWS
 
-# 🤖 Self-Hosted AIOps Agent on AWS Free Tier
+**A production-grade, fully self-hosted AI Operations micro-agent — running on AWS Free Tier with zero external API costs.**
 
-**A lightweight, production-ready AIOps micro-agent running entirely on AWS Free Tier infrastructure**
+[![Python](https://img.shields.io/badge/Python-3.10+-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.100+-009688?style=for-the-badge&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
+[![AWS](https://img.shields.io/badge/AWS-EC2%20Free%20Tier-FF9900?style=for-the-badge&logo=amazon-aws&logoColor=white)](https://aws.amazon.com/free/)
+[![llama.cpp](https://img.shields.io/badge/llama.cpp-CPU%20Inference-8A2BE2?style=for-the-badge)](https://github.com/ggerganov/llama.cpp)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](https://opensource.org/license/mit/)
 
-[![Python](https://img.shields.io/badge/Python-3.10%2B-blue?logo=python)](https://python.org)
-[![FastAPI](https://img.shields.io/badge/FastAPI-0.110%2B-green?logo=fastapi)](https://fastapi.tiangolo.com)
-[![AWS EC2](https://img.shields.io/badge/AWS-EC2%20t2.micro-orange?logo=amazon-aws)](https://aws.amazon.com/ec2/)
-[![llama.cpp](https://img.shields.io/badge/LLM-llama.cpp-blueviolet)](https://github.com/ggerganov/llama.cpp)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+> *Practical AIOps. No cloud AI subscriptions. No GPU. Just pure engineering.*
 
 </div>
+
+---
+
+## 📸 Screenshots
+
+> Project screenshots are located in the [`docs/`](docs/) folder.
+
+| Agent API Response | System Metrics Dashboard | Architecture Overview |
+|---|---|---|
+| ![API Response](docs/api-response.png) | ![Metrics](docs/metrics-dashboard.png) | ![Architecture](docs/architecture-diagram.png) |
 
 ---
 
 ## 📖 Overview
 
-I designed and deployed a **lightweight AIOps micro-agent** running entirely on **AWS Free Tier** infrastructure. This project demonstrates how to build a fully self-hosted, AI-powered operations assistant — no external paid APIs required.
+This project demonstrates a **lightweight, self-hosted AIOps micro-agent** designed to run entirely on **AWS Free Tier** infrastructure (EC2 t2.micro — 1 vCPU, 1 GB RAM). It combines a local Large Language Model (LLM) running via `llama.cpp` with a **FastAPI** backend and a custom **tool-based routing layer** to deliver real operational intelligence without any external paid APIs.
 
-The agent monitors infrastructure health, executes secure shell commands, and routes natural-language requests through a local LLM — all on a single `t2.micro` instance with **1 vCPU and 1 GB RAM**.
+The agent can monitor live system metrics, execute shell commands, and answer natural-language operations queries — all from a single, resource-constrained server.
 
 ---
 
-## 🏗 Architecture
+## ✨ Features
 
-<div align="center">
+| Capability | Description |
+|---|---|
+| 📊 **Live System Monitoring** | Real-time CPU and memory usage tracking |
+| 🖥️ **Secure Shell Execution** | Execute whitelisted shell commands via REST API |
+| 🧠 **Local LLM Inference** | TinyLlama 1.1B (Q4 quantized) running fully on CPU |
+| 🔀 **Tool-Based Routing** | Intelligent routing between tools and LLM based on query intent |
+| 🌐 **REST API Interface** | Clean FastAPI endpoints for easy integration |
+| 🔒 **Zero External Dependencies** | Fully self-hosted — no OpenAI, no Anthropic, no paid APIs |
+| ⚡ **Optimized for Constraints** | Tuned for ~10–12 tokens/sec on 1 GB RAM with swap |
 
-<img
-  src="docs/images/architecture.png"
-  alt="AIOps Agent Architecture: Client → FastAPI Agent → Tool Layer → Local LLM Server → Response"
-  width="800"
-  loading="lazy"
-/>
+---
 
-</div>
+## 🏗️ Architecture
 
 ```
-Client
-  │
-  ▼
-FastAPI Agent  ──► Tool Layer ──► [CPU Monitor]
-  │                              [Memory Monitor]
-  │                              [Shell Executor]
-  │
-  ▼
-Local LLM Server (llama.cpp + TinyLlama 1.1B Q4)
-  │
-  ▼
-Response
+┌────────────────────────────────────────────────────────────┐
+│                      AWS EC2 t2.micro                      │
+│                  (1 vCPU · 1 GB RAM · Swap)                │
+│                                                            │
+│  ┌──────────┐    ┌───────────────┐    ┌─────────────────┐  │
+│  │  Client  │───▶│  FastAPI App  │───▶│   Tool Router   │  │
+│  │ (HTTP)   │    │  (Port 8000)  │    │                 │  │
+│  └──────────┘    └───────────────┘    └────────┬────────┘  │
+│                                                │           │
+│                          ┌─────────────────────┤           │
+│                          │                     │           │
+│                   ┌──────▼──────┐    ┌─────────▼───────┐  │
+│                   │  LLM Server │    │   System Tools   │  │
+│                   │ (llama.cpp) │    │ CPU · MEM · Shell│  │
+│                   │ TinyLlama1B │    │                 │  │
+│                   └─────────────┘    └─────────────────┘  │
+└────────────────────────────────────────────────────────────┘
+```
+
+**Request Flow:**
+```
+Client Request
+     │
+     ▼
+FastAPI Agent  ──▶  Intent Classifier
+                          │
+              ┌───────────┴───────────┐
+              ▼                       ▼
+        Tool Layer              Local LLM
+    (CPU/MEM/Shell)         (TinyLlama 1.1B)
+              │                       │
+              └───────────┬───────────┘
+                          ▼
+                   Unified Response
 ```
 
 ---
 
 ## 🔧 Tech Stack
 
-| Component | Technology |
-|-----------|-----------|
-| **Cloud** | AWS EC2 t2.micro (Free Tier) |
-| **LLM Runtime** | llama.cpp (CPU-only inference) |
-| **Model** | TinyLlama 1.1B (Q4 quantized) |
-| **Backend** | FastAPI |
-| **Routing** | Custom tool-based agent layer |
-| **OS** | Ubuntu 22.04 LTS |
-
----
-
-## ⚙️ What It Can Do
-
-- ✅ **Monitor live CPU & memory usage** in real time
-- ✅ **Execute shell commands** securely via the REST API
-- ✅ **Route requests** intelligently between tools and the LLM
-- ✅ **Serve AI responses** through a clean REST API
-- ✅ **Run fully self-hosted** — zero external paid APIs
-
----
-
-## 🖥 Screenshots
-
-<div align="center">
-
-<img
-  src="docs/images/api-health-check.png"
-  alt="FastAPI health check endpoint returning system status"
-  width="760"
-  loading="lazy"
-/>
-
-<p><em>FastAPI health-check endpoint returning live CPU and memory status</em></p>
-
-</div>
-
-<div align="center">
-
-<img
-  src="docs/images/llm-inference.png"
-  alt="TinyLlama LLM inference response in the terminal"
-  width="760"
-  loading="lazy"
-/>
-
-<p><em>TinyLlama 1.1B running CPU inference at ~10-12 tokens/sec</em></p>
-
-</div>
-
-<div align="center">
-
-<img
-  src="docs/images/agent-routing.png"
-  alt="Agent routing a natural-language request to the correct tool"
-  width="760"
-  loading="lazy"
-/>
-
-<p><em>Agent routing layer dispatching a natural-language query to the right tool</em></p>
-
-</div>
+| Layer | Technology | Purpose |
+|---|---|---|
+| **Compute** | AWS EC2 t2.micro | Free Tier cloud host |
+| **OS** | Ubuntu 22.04 LTS | Base operating system |
+| **LLM Runtime** | [llama.cpp](https://github.com/ggerganov/llama.cpp) | CPU-optimised LLM inference |
+| **Model** | TinyLlama 1.1B (Q4_K_M) | Lightweight, quantized chat model |
+| **Backend** | FastAPI + Uvicorn | High-performance async API server |
+| **Monitoring** | psutil | Cross-platform system metrics |
+| **Language** | Python 3.10+ | Core application language |
 
 ---
 
@@ -129,181 +107,229 @@ Response
 
 ### Prerequisites
 
-- AWS account (Free Tier eligible)
-- EC2 `t2.micro` instance running Ubuntu 22.04 LTS
-- Python 3.10 or later
-- At least 2 GB swap space configured (for LLM inference on 1 GB RAM)
+- AWS EC2 instance (**t2.micro**, Ubuntu 22.04 LTS) or any Linux server
+- Python 3.10+
+- At least **2 GB swap** configured (critical for 1 GB RAM instances)
+- `cmake`, `gcc`, `g++` for building llama.cpp
 
-### 1. Launch EC2 Instance
+---
 
-```bash
-# Configure at least 2 GB swap to handle LLM inference pressure
-sudo fallocate -l 2G /swapfile
-sudo chmod 600 /swapfile
-sudo mkswap /swapfile
-sudo swapon /swapfile
-```
-
-### 2. Install llama.cpp
-
-```bash
-git clone https://github.com/ggerganov/llama.cpp.git
-cd llama.cpp
-make -j$(nproc)
-```
-
-### 3. Download TinyLlama (Q4 quantized)
-
-```bash
-wget https://huggingface.co/TheBloke/TinyLlama-1.1B-Chat-v1.0-GGUF/resolve/main/tinyllama-1.1b-chat-v1.0.Q4_K_M.gguf \
-  -O models/tinyllama.gguf
-```
-
-### 4. Clone & Install the Agent
+### 1. Clone the Repository
 
 ```bash
 git clone https://github.com/ketanayatti/Self-Hosted-AIOps-Agent-on-AWS.git
 cd Self-Hosted-AIOps-Agent-on-AWS
-pip install -r requirements.txt
+```
+
+### 2. Configure Swap (for 1 GB RAM instances)
+
+```bash
+sudo fallocate -l 2G /swapfile
+sudo chmod 600 /swapfile
+sudo mkswap /swapfile
+sudo swapon /swapfile
+echo '/swapfile none swap sw 0 0' | sudo tee -a /etc/fstab
+```
+
+### 3. Install llama.cpp
+
+```bash
+sudo apt update && sudo apt install -y build-essential cmake git
+git clone https://github.com/ggerganov/llama.cpp /opt/llama.cpp
+cd /opt/llama.cpp
+cmake -B build -DLLAMA_NATIVE=OFF
+cmake --build build --config Release -j$(nproc)
+```
+
+### 4. Download TinyLlama Model
+
+```bash
+mkdir -p /opt/models
+# Download TinyLlama 1.1B Q4_K_M GGUF
+wget -O /opt/models/tinyllama-1.1b-chat-v1.0.Q4_K_M.gguf \
+  https://huggingface.co/TheBloke/TinyLlama-1.1B-Chat-v1.0-GGUF/resolve/main/tinyllama-1.1b-chat-v1.0.Q4_K_M.gguf
 ```
 
 ### 5. Start the LLM Server
 
 ```bash
-./llama.cpp/server \
-  -m models/tinyllama.gguf \
-  --ctx-size 2048 \
-  --threads 1 \
-  --host 127.0.0.1 \
-  --port 8080
+/opt/llama.cpp/build/bin/llama-server \
+  --model /opt/models/tinyllama-1.1b-chat-v1.0.Q4_K_M.gguf \
+  --host 0.0.0.0 --port 8080 \
+  --ctx-size 2048 --threads 1 --n-predict 256 &
 ```
 
-### 6. Launch the FastAPI Agent
+### 6. Install Python Dependencies
 
 ```bash
-uvicorn agent:app --host 0.0.0.0 --port 8000
+cd /path/to/Self-Hosted-AIOps-Agent-on-AWS
+python3 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+```
+
+### 7. Start the AIOps Agent
+
+```bash
+uvicorn agent:app --host 0.0.0.0 --port 8000 --reload
 ```
 
 ---
 
 ## 📡 API Reference
 
-### Health Check
+### `GET /health`
+Health check endpoint.
 
-```http
-GET /health
+```bash
+curl http://<your-ec2-ip>:8000/health
+```
+```json
+{ "status": "ok", "llm": "online", "tools": "ready" }
 ```
 
-Returns live CPU and memory metrics.
+---
 
-**Response:**
+### `GET /metrics`
+Returns live CPU and memory stats.
 
+```bash
+curl http://<your-ec2-ip>:8000/metrics
+```
 ```json
 {
-  "status": "ok",
   "cpu_percent": 12.4,
-  "memory_percent": 74.1,
-  "uptime_seconds": 86400
+  "memory": {
+    "total_mb": 983,
+    "used_mb": 712,
+    "percent": 72.4
+  }
 }
 ```
 
-### Run a Query
+---
 
-```http
-POST /query
-Content-Type: application/json
+### `POST /query`
+Send a natural-language or structured query to the agent.
 
-{
-  "prompt": "What is the current CPU usage?"
-}
+```bash
+curl -X POST http://<your-ec2-ip>:8000/query \
+  -H "Content-Type: application/json" \
+  -d '{"prompt": "What is the current memory usage?"}'
 ```
-
-**Response:**
-
 ```json
 {
-  "tool": "cpu_monitor",
-  "result": "Current CPU usage is 12.4%.",
-  "tokens_per_sec": 11.3
+  "route": "tool",
+  "tool": "memory_check",
+  "result": "Memory usage is at 72.4% (712 MB / 983 MB).",
+  "latency_ms": 18
 }
 ```
 
-### Execute Shell Command
+---
 
-```http
-POST /exec
-Content-Type: application/json
+### `POST /exec`
+Execute a whitelisted shell command.
 
+```bash
+curl -X POST http://<your-ec2-ip>:8000/exec \
+  -H "Content-Type: application/json" \
+  -d '{"command": "df -h"}'
+```
+```json
 {
-  "command": "df -h /"
+  "stdout": "Filesystem      Size  Used Avail Use% Mounted on\n/dev/xvda1       20G  6.1G   14G  31% /",
+  "returncode": 0
 }
 ```
 
 ---
 
-## 🔥 Key Challenges & Solutions
+## ⚙️ Performance & Optimization
 
-| Challenge | Solution |
-|-----------|----------|
-| 1 GB RAM for LLM inference | 2 GB swap + Q4 quantization |
-| CPU-only token generation | Single-threaded llama.cpp server, 10-12 tok/s |
-| Secure shell execution | Allowlist-based command validation |
-| Low latency routing | Rule-based pre-filter before LLM fallback |
+Running a quantized LLM on a 1 GB RAM EC2 instance is non-trivial. Here are the key optimizations applied:
 
----
+| Technique | Impact |
+|---|---|
+| **Q4_K_M quantization** | ~60% model size reduction vs. FP16 |
+| **2 GB swap file** | Prevents OOM kills during inference |
+| **Context window = 2048** | Limits peak memory footprint |
+| **Single thread (--threads 1)** | Prevents CPU throttling on t2.micro |
+| **Tool-first routing** | Avoids LLM calls for deterministic queries |
 
-## 🔭 Next Steps
-
-- [ ] **RAG-based knowledge memory** — attach a vector store for log history retrieval
-- [ ] **Multi-step automation workflows** — chain tool calls for complex remediation
-- [ ] **Secure authentication layer** — API key / JWT middleware for the FastAPI app
-- [ ] **Grafana dashboard** — visualize CPU, memory and token-throughput over time
+**Observed throughput:** ~10–12 tokens/sec on t2.micro (CPU-only)
 
 ---
 
-## 💡 What This Demonstrates
+## 🗺️ Roadmap
 
-| Skill | Evidence |
-|-------|---------|
-| **AIOps system design** | End-to-end agent with tool routing and LLM fallback |
-| **Self-hosted LLM deployment** | llama.cpp + quantized model on constrained hardware |
-| **Infrastructure-aware AI** | Real-time CPU/memory telemetry piped into the agent |
-| **Backend + DevOps integration** | FastAPI, systemd, swap management on EC2 |
-| **Resource-constrained optimisation** | Stable inference on 1 vCPU / 1 GB RAM |
+- [ ] **RAG-based Knowledge Memory** — Attach a vector store (e.g. ChromaDB) for log-aware context retrieval
+- [ ] **Multi-Step Automation Workflows** — Chain tools into automated runbooks (restart service → verify → alert)
+- [ ] **Secure Authentication Layer** — API key / JWT authentication for production hardening
+- [ ] **Alert & Notification System** — Threshold-based alerts via webhooks (Slack, PagerDuty)
+- [ ] **Metrics Dashboard** — Lightweight web UI showing live charts and agent activity
+- [ ] **Docker Deployment** — Single `docker compose up` setup for reproducible environments
 
 ---
 
-## 📂 Project Structure
+## 📁 Project Structure
 
 ```
 Self-Hosted-AIOps-Agent-on-AWS/
-├── agent.py            # FastAPI app & request router
+├── agent.py                # FastAPI application & tool routing logic
 ├── tools/
-│   ├── cpu_monitor.py  # CPU usage tool
-│   ├── mem_monitor.py  # Memory usage tool
-│   └── shell_exec.py   # Secure shell execution tool
-├── llm_client.py       # llama.cpp HTTP client wrapper
-├── requirements.txt    # Python dependencies
-└── docs/
-    └── images/         # Architecture diagrams & screenshots
+│   ├── metrics.py          # CPU & memory monitoring (psutil)
+│   └── shell.py            # Secure shell command execution
+├── llm/
+│   └── client.py           # llama.cpp HTTP client wrapper
+├── requirements.txt        # Python dependencies
+├── docs/                   # Project screenshots & diagrams
+│   └── README.md           # Guide for adding screenshots
+└── README.md               # This file
 ```
+
+---
+
+## 💡 What This Project Demonstrates
+
+- **Practical AIOps system design** — A working agent architecture, not just theory
+- **Self-hosted LLM deployment** — Proving LLMs don't need expensive cloud APIs
+- **Infrastructure-aware AI** — Agent that understands and interacts with its own host
+- **Backend + DevOps integration** — Combining software engineering with cloud operations
+- **Resource-constrained optimization** — Production thinking under extreme hardware limits
 
 ---
 
 ## 🤝 Contributing
 
-Pull requests are welcome! Please open an issue first to discuss what you would like to change.
+Contributions, issues and feature requests are welcome!
+
+1. Fork the repository
+2. Create a feature branch: `git checkout -b feature/your-feature`
+3. Commit your changes: `git commit -m 'feat: add your feature'`
+4. Push to the branch: `git push origin feature/your-feature`
+5. Open a Pull Request
 
 ---
 
-## 📄 License
+## 📜 License
 
-This project is licensed under the [MIT License](LICENSE).
+This project is licensed under the **MIT License** — see the [MIT License](https://opensource.org/license/mit/) for details.
+
+---
+
+## 👤 Author
+
+**Ketan Ayatti**
+
+[![GitHub](https://img.shields.io/badge/GitHub-ketanayatti-181717?style=flat-square&logo=github)](https://github.com/ketanayatti)
 
 ---
 
 <div align="center">
 
-*Built with ❤️ on AWS Free Tier · No paid APIs · Fully self-hosted*
+*Built with 💻 on AWS Free Tier — proving that great engineering doesn't require deep pockets.*
+
+⭐ If you found this useful, please **star the repo** — it means a lot!
 
 </div>
